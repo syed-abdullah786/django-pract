@@ -1,7 +1,9 @@
 from django.urls import path
 from . import views
 urlpatterns = [
-path('', views.login),
+path('login/', views.login_user, name="login"),
+path('index/', views.index, name="index"),
 path('abpract/<slug:hell>', views.FormCheck.as_view()),
-path('detail/', views.details)
+path('add_product/', views.add_product, name="add_product"),
+path('logout/', views.logout_user, name="logout")
 ]
