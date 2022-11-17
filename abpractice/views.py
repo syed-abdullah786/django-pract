@@ -1,11 +1,14 @@
+from django.core import serializers
+from django.http import HttpResponse
 from django.shortcuts import render
-from .models import MeetUps
-from .forms import UserForm, ProductForm
+from .models import Product
+from .forms import UserForm, ProductForm, CategoryForm
 from django.views import View
 from django.contrib.auth import authenticate
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, logout
 from django.shortcuts import redirect
+import json
 
 
 def logout_user(request):
@@ -81,7 +84,20 @@ def add_product(request):
             print(form.cleaned_data)
             form.save()
             return redirect('index')
+        form = CategoryForm(request.POST)
+        if form.is_valid():
+            print(form.cleaned_data)
+            form.save()
+            return redirect('add_product')
     else:
         form = ProductForm
-        return render(request, 'abpractice/add_product.html', {'form': form})
+        cat_form = CategoryForm
+        return render(request, 'abpractice/add_product.html', {'pro_form': form,'cat_form':cat_form})
 
+def edit_product(request):
+    product = Product.objects.all()
+    print(product[0].category)
+    # print(product['title'])
+    return render(request, 'abpractice/edit_product.html',{'product': product})
+
+# def update(request, id):
