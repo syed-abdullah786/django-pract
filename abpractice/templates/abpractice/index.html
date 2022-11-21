@@ -31,7 +31,7 @@
 						<button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 border border-red-500 rounded">Delete</button>
 					</form>
                     {% else %}
-                    <form method="post" class="inline">
+                    <form class="inline" id="{{prod.id}}">
 					{% csrf_token %}
                         <input name="quantity" type="number" class="hidden" value="1">
                         <input name="product_id" class="hidden" value="{{prod.id}}">
@@ -41,6 +41,28 @@
                     {% endif %}
 				</td>
 			</tr>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script type="text/javascript">
+    $('#{{prod.id}}').on('submit', function(event){
+    event.preventDefault();
+    var serializedData = $(this).serialize();
+    console.log(serializedData);
+    $.ajax(
+    {
+        type:"POST",
+        url: "",
+        data: serializedData,
+        success: function( data )
+        {
+             alert('addes to cart');
+        }
+     })
+});
+</script>
+
+
+
 		{% endfor %}
 		</tbody>
 	</table>
@@ -91,6 +113,14 @@
 {% else %}
 <p>No data to show</p>
 {% endif %}
+
+
+
+
+
+
+
+
 
             <script>
 

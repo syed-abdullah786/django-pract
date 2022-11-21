@@ -14,7 +14,7 @@
             </header>
 
             <div class="overflow-x-auto p-3">
-                <table class="table-auto w-full">
+                <table class="table-auto w-full" id="table">
                     <thead class="text-xs font-semibold uppercase text-gray-400 bg-gray-50">
                         <tr>
                             <th></th>
@@ -59,10 +59,20 @@
                             </td>
                             <td class="p-2">
                                 <div class="flex justify-center">
-                                    <form method="post">
-                                        {% csrf_token%}
-                                        <input name="id" value="{{cart.id}}" class="hidden">
-                                    <button type="submit">
+<!--                                    <form method="post">-->
+<!--                                        {% csrf_token%}-->
+<!--                                        <input name="id" value="{{cart.id}}" class="hidden">-->
+<!--                                    <button type="submit" id="delete-{{cart.id}}">-->
+<!--                                        <svg class="w-8 h-8 hover:text-blue-600 rounded-full hover:bg-gray-100 p-1"-->
+<!--                                            fill="none" stroke="currentColor" viewBox="0 0 24 24"-->
+<!--                                            xmlns="http://www.w3.org/2000/svg">-->
+<!--                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"-->
+<!--                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">-->
+<!--                                            </path>-->
+<!--                                        </svg>-->
+<!--                                    </button>-->
+<!--                                    </form>-->
+                                    <button onclick="al({{cart.id}})" id="del">
                                         <svg class="w-8 h-8 hover:text-blue-600 rounded-full hover:bg-gray-100 p-1"
                                             fill="none" stroke="currentColor" viewBox="0 0 24 24"
                                             xmlns="http://www.w3.org/2000/svg">
@@ -71,7 +81,6 @@
                                             </path>
                                         </svg>
                                     </button>
-                                    </form>
                                 </div>
                             </td>
                         </tr>
@@ -95,6 +104,28 @@
         </div>
     </div>
 </section>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script type="text/javascript">
+    function al(id){
+    $.ajax(
+    {
+        type:"GET",
+        url: "",
+        data:{
+                 "cart_id": id
+        },
+        success: function( data )
+        {
+             var successHtml = $($.parseHTML(data)).find("#table").html();
+             $("#table").html(successHtml);
+        }
+     })
+}
+</script>
+
+
 
 <script>
     document.addEventListener("alpine:init", () => {

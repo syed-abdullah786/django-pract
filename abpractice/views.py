@@ -1,7 +1,9 @@
 from django.core import serializers
 from django.db.models import Q
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404
+from django.template.loader import render_to_string
+
 from .models import Product, Category, Cart
 from .forms import UserForm, ProductForm, CategoryForm, CartForm
 from django.views import View
@@ -61,7 +63,7 @@ class FormCheck(View):
 def index(request):
     product = Product.objects.all()
     category = Category.objects.all()
-    if request.method == 'POST':
+    if request.method == 'POST' and is_ajax(request):
         queryset = Cart.objects.filter(
             Q(product_id=request.POST['product_id']) & Q(user_id=request.POST['user_id'])).first()
         if queryset:
@@ -70,6 +72,8 @@ def index(request):
         else:
             obj = Cart(product_id=request.POST['product_id'], user_id=request.POST['user_id'], quantity=request.POST['quantity'])
             obj.save()
+        message='success'
+        return message
     return render(request, 'abpractice/index.html', {'product': product, 'category': category})
 
 
@@ -140,10 +144,24 @@ def update(request, id):
         return redirect('index')
     return redirect('index')
 
+def is_ajax(request):
+    return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
+
 def cart(request):
-    if request.method == "POST":
-        obj = get_object_or_404(Cart, id=request.POST['id'])
+    if is_ajax(request) and request.method == "GET":
+        obj = get_object_or_404(Cart, id=request.GET['cart_id'])
         obj.delete()
+        cart = Cart.objects.filter(Q(user_id=request.user.id))
+        html = render_to_string('abpractice/cart.html', {'carts': cart})
+        return HttpResponse(html)
 
     cart = Cart.objects.filter(Q(user_id=request.user.id))
     return render(request, 'abpractice/cart.html',{'carts': cart})
+
+# def ajax_del(request):
+    # if request.method == "GET":
+    #     print(request.GET)
+    #     obj = get_object_or_404(Cart, id=request.POST['cart_id'])
+    #     print(obj)
+
+        # obj.delete()

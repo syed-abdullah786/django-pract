@@ -10,4 +10,5 @@ path('logout/', views.logout_user, name="logout"),
 path('update/<int:id>', views.update, name="update"),
 path('delete/<int:id>', views.delete, name="delete"),
 path('cart/', views.cart, name="cart")
+# path('cart/ajax/', views.ajax_del, name="ajax_del")
 ]
