@@ -32,11 +32,12 @@ class Category(models.Model):
 
 
 class Cart(models.Model):
+    quantity = models.IntegerField(default=1)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f'{self.user}'
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    #
+    # def __str__(self):
+    #     return f'{self.user}'
 
 
 class Order(models.Model):
