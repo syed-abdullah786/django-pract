@@ -15,6 +15,7 @@
 		</thead>
 		<tbody class="block md:table-row-group">
 		{% for prod in product %}
+<div id="snackbar-{{prod.id}}" class="fixed top-1.5 right-1.5 hidden w-[300px] mb-2 select-none border-l-4 border-green-400 bg-green-100 p-4 font-medium hover:border-green-500">Added to cart</div>
 
 			<tr class="bg-gray-300 border border-grey-500 md:border-none block md:table-row">
 				<td class="p-2 md:border md:border-grey-500 text-left block md:table-cell">{{prod.title}}</td>
@@ -34,6 +35,7 @@
                     <form class="inline" id="{{prod.id}}">
 					{% csrf_token %}
                         <input name="quantity" type="number" class="hidden" value="1">
+                        <input name="title" class="hidden" value="{{prod.title}}">
                         <input name="product_id" class="hidden" value="{{prod.id}}">
                         <input name="user_id" class="hidden" value="{{user.id}}">
                         <button type="submit" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-1 px-2 border border-yellow-500 rounded">Add to cart</button>
@@ -55,12 +57,15 @@
         data: serializedData,
         success: function( data )
         {
-             alert('addes to cart');
+             var a= 'snackbar-{{prod.id}}';
+             var x = document.getElementById(a);
+             x.innerHTML=data.res;
+             x.classList.remove("hidden");
+             setTimeout(function(){ x.classList.add("hidden"); }, 2000);
         }
      })
 });
 </script>
-
 
 
 		{% endfor %}

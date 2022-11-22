@@ -66,14 +66,16 @@ def index(request):
     if request.method == 'POST' and is_ajax(request):
         queryset = Cart.objects.filter(
             Q(product_id=request.POST['product_id']) & Q(user_id=request.POST['user_id'])).first()
+        print(request.POST['title'])
         if queryset:
-            queryset.quantity +=1
-            queryset.save()
+            message = request.POST['title'] + ' Already added'
+            return JsonResponse({'res': message})
         else:
-            obj = Cart(product_id=request.POST['product_id'], user_id=request.POST['user_id'], quantity=request.POST['quantity'])
-            obj.save()
-        message='success'
-        return message
+            queryset = Cart(product_id=request.POST['product_id'], user_id=request.POST['user_id'], quantity=request.POST['quantity'])
+            queryset.save()
+        # data = serializers.serialize('json', queryset)
+        message = request.POST['title'] + ' Added to cart'
+        return JsonResponse({'res': message})
     return render(request, 'abpractice/index.html', {'product': product, 'category': category})
 
 
@@ -152,11 +154,17 @@ def cart(request):
         obj = get_object_or_404(Cart, id=request.GET['cart_id'])
         obj.delete()
         cart = Cart.objects.filter(Q(user_id=request.user.id))
+        a = 0;
+        for cat in cart:
+            a += cat.product.price
         html = render_to_string('abpractice/cart.html', {'carts': cart})
-        return HttpResponse(html)
+        return JsonResponse({'html':html,'total':a})
 
     cart = Cart.objects.filter(Q(user_id=request.user.id))
-    return render(request, 'abpractice/cart.html',{'carts': cart})
+    a=0;
+    for cat in cart:
+        a+= cat.product.price
+    return render(request, 'abpractice/cart.html',{'carts': cart,'total':a})
 
 # def ajax_del(request):
     # if request.method == "GET":
