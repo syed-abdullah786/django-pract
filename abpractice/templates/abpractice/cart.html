@@ -92,10 +92,15 @@
             <div class="flex justify-end font-bold space-x-4 text-2xl border-t border-gray-100 px-5 py-4">
                 <div>Total</div>
 <!--                <div class="text-blue-600">Rs <span x-text="total.toFixed(2)"></span></div>-->
-                <div class="text-blue-600">Rs <span id="total">{{total}}</span></div>
+                <div class="text-blue-600 w-[200px]">Rs <span id="total">{{total}}</span></div>
                {% if carts %}
-                <button class="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-2 border border-green-500 rounded">Submit</button>
-                {% endif %}
+                <form method="post" action="{% url 'order'%}">
+                    {% csrf_token %}
+                    <label for="shipping_address">Shipping Address</label>
+                    <textarea type="text" id="shipping_address" name="shipping_address" required></textarea>
+                <button type="submit" class="bg-green-500 hover:bg-green-700 text-white py-1 px-2 border border-green-500 rounded">Submit</button>
+                </form>
+                    {% endif %}
             </div>
         </div>
 

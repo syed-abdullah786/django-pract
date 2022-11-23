@@ -41,11 +41,23 @@ class Cart(models.Model):
 
 
 class Order(models.Model):
+    state = [
+        ('A', 'active'),
+        ('I', 'inactive'),
+        ('C','canceled')]
     total_price = models.IntegerField()
-    user = models.OneToOneField(CustomUser, on_delete=models.RESTRICT)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.RESTRICT)
+    status = models.CharField(choices=state, default='A', max_length=30)
     shipping_address = models.CharField(max_length=100)
+    created = models.DateTimeField(auto_now_add=True)
 
+
+class Placed_Order(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.RESTRICT)
+    product_title = models.CharField(max_length=300)
+    product_description = models.CharField(max_length=300)
+    product_price = models.IntegerField()
+    product_category = models.CharField(max_length=300)
 
 
 class Locations(models.Model):
