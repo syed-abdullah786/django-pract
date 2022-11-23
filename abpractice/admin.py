@@ -20,4 +20,5 @@ class CustomUserAdmin(UserAdmin):
          {'fields': ('username', 'password1', 'password2', 'email', 'address', 'phone_no', 'gender', 'province', 'district', 'city')}),
     )
 
+
 admin.site.register(CustomUser, CustomUserAdmin)

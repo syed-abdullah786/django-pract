@@ -196,15 +196,9 @@ def order(request):
     return render(request, 'abpractice/order.html', {'orders': orders})
 
 
-
-
-
-
-
 # def ajax_del(request):
     # if request.method == "GET":
     #     print(request.GET)
     #     obj = get_object_or_404(Cart, id=request.POST['cart_id'])
     #     print(obj)
-
         # obj.delete()
