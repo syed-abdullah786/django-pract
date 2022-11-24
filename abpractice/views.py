@@ -3,7 +3,6 @@ from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.template.loader import render_to_string
-
 from .models import Product, Category, Cart, Order, Placed_Order
 from .forms import UserForm, ProductForm, CategoryForm, CartForm
 from django.views import View
@@ -107,11 +106,16 @@ def add_product(request):
         form = ProductForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('index')
         form = CategoryForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('add_product')
+            # all_entries = Category.objects.all().values()
+            # mydict = {}
+            # for entry in all_entries:
+            #     mydict[entry['id']] = entry['category_name']
+            form = ProductForm
+            html = render_to_string('abpractice/add_product.html', {'pro_form': form})
+            return JsonResponse({'html': html})
     else:
         form = ProductForm
         cat_form = CategoryForm
@@ -194,6 +198,29 @@ def order(request):
         return render(request, 'abpractice/order.html', {'orders': orders})
     orders = Order.objects.filter(user_id=request.user.id)
     return render(request, 'abpractice/order.html', {'orders': orders})
+
+
+def register(request):
+    if request.method == 'POST':
+        form = UserForm(request.POST)
+        if form.is_valid():
+            form.save()
+            # username = form.cleaned_data.get('username')
+            # email = form.cleaned_data.get('email')
+            # ######################### mail system ####################################
+            # htmly = get_template('user/Email.html')
+            # d = { 'username': username }
+            # subject, from_email, to = 'welcome', 'your_email@gmail.com', email
+            # html_content = htmly.render(d)
+            # msg = EmailMultiAlternatives(subject, html_content, from_email, [to])
+            # msg.attach_alternative(html_content, "text/html")
+            # msg.send()
+            # ##################################################################
+            # messages.success(request, f'Your account has been created ! You are now able to log in')
+            return redirect('login')
+    else:
+        form = UserForm()
+    return render(request, 'abpractice/register.html', {'form': form, 'title':'register here'})
 
 
 # def ajax_del(request):

@@ -1,8 +1,8 @@
 {% extends "./base.html" %}
 
 {% block content %}
+{% if carts  %}
 
-<!--<script defer src="https://unpkg.com/alpinejs@3.10.2/dist/cdn.min.js"></script>-->
 <div id="snackbar" class="fixed top-1.5 right-1.5 hidden w-[300px] mb-2 select-none border-l-4 border-red-400 bg-red-100 p-4 font-medium hover:border-red-500">Removed from cart</div>
 
 <section class="antialiased bg-gray-100 text-gray-600 h-screen px-4" x-data="app">
@@ -125,7 +125,6 @@
         },
         success: function( data)
         {
-
              var successHtml = $($.parseHTML(data.html)).find("#changed").html();
              $("#changed").html(successHtml);
              var x = document.getElementById("snackbar");
@@ -138,46 +137,7 @@
 }
 </script>
 
-
-
-<!--<script>-->
-<!--    document.addEventListener("alpine:init", () => {-->
-<!--        Alpine.data("app", () => ({-->
-<!--            total: 0,-->
-<!--            selected: [],-->
-
-<!--            toggleCheckbox(element, amount) {-->
-<!--                if (element.checked) {-->
-<!--                    this.selected.push(element.value);-->
-<!--                    this.total += amount;-->
-<!--                } else {-->
-<!--                    const index = this.selected.indexOf(element.value);-->
-
-<!--                    if (index > -1) this.selected.splice(index, 1);-->
-
-<!--                    this.total -= amount;-->
-<!--                }-->
-<!--            },-->
-<!--        }));-->
-<!--    });-->
-
-
-
-
-
-
-
-<!--&lt;!&ndash;window.onload = function() {&ndash;&gt;-->
-<!--&lt;!&ndash;        myFunction();&ndash;&gt;-->
-<!--&lt;!&ndash;    }&ndash;&gt;-->
-<!--&lt;!&ndash;}&ndash;&gt;-->
-
-<!--function myFunction(qty,price,id){-->
-<!--a= qty * price;-->
-<!--Id = 'price-' + id-->
-<!--document.getElementById(Id).innerHTML=a;-->
-<!--}-->
-
-<!--</script>-->
-
+{% else %}
+<p>cart is empty</p>
+{% endif %}
 {% endblock %}

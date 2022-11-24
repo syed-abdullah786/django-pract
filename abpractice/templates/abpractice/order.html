@@ -5,6 +5,7 @@
 <!-- component -->
 		<div>
 			<div class="px-4 sm:px-8 py-4 overflow-x-auto mt-20 mx-20">
+				{% if orders %}
 				<div class="inline-block min-w-full shadow rounded-lg overflow-hidden">
 					<table class="min-w-full leading-normal">
 						<thead>
@@ -87,6 +88,10 @@
 						</tbody>
 					</table>
 				</div>
+				{% else %}
+				<p>order in empty</p>
+				{% endif %}
+
 			</div>
 		</div>
 

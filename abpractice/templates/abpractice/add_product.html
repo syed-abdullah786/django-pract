@@ -1,14 +1,21 @@
 {% extends "./base.html" %}
-
+{% load tailwind_filters %}
 {% block content %}
+<div id="snackbar" class="fixed top-1.5 right-1.5 hidden w-[300px] mb-2 select-none border-l-4 border-green-400 bg-green-100 p-4 font-medium hover:border-green-500">Category Added</div>
 
-<form method="POST">
-					{% csrf_token%}
-	{{pro_form.as_p}}
+    <div class="w-full block bg-gradient-to-r from-blue-100 via-purple-100 to-pink-100 p-4 flex items-center justify-center" >
+        <div id="hell" class="bg-white mx-64 my- 20 py-6 px-10 w-full ">
+            <div class="sm:text-3xl text-2xl font-semibold text-center text-sky-600  mb-12">
+                Add Product
+            </div>
+          <form method="POST">
+                        {% csrf_token%}
+        {{pro_form|crispy}}
 
-					<input type="submit" class="w-full flex justify-center bg-purple-800  hover:bg-purple-700 text-gray-100 p-3  rounded-lg tracking-wide font-semibold  cursor-pointer transition ease-in duration-500">
-				</form>
-
+                        <input type="submit" class="mt-8 w-full flex justify-center bg-purple-800  hover:bg-purple-700 text-gray-100 p-3  rounded-lg tracking-wide font-semibold  cursor-pointer transition ease-in duration-500">
+                    </form>
+        </div>
+    </div>
 <div class="relative flex justify-center items-center">
 
 <!--  <button onclick="showMenu(true)" class="focus:ring-2 focus:ring-offset-2 focus:ring-gray-800 focus:outline-none absolute z-0 top-48 py-2 px-7 bg-gray-800 text-white rounded text-base hover:bg-black">Open</button>-->
@@ -23,10 +30,10 @@
           <h1 role="main" class="text-3xl dark:text-white lg:text-4xl font-semibold leading-7 lg:leading-9 text-center text-gray-800">Add collection</h1>
         </div>
         <div class="mt">
-          <form method="POST">
+          <form id="cat-form">
             {% csrf_token %}
-          {{cat_form.as_p}}
-            <input type="submit" class="w-full flex justify-center bg-purple-800  hover:bg-purple-700 text-gray-100 p-3  rounded-lg tracking-wide font-semibold  cursor-pointer transition ease-in duration-500">
+          {{cat_form|crispy}}
+            <input type="submit" class="mt-6 w-full flex justify-center bg-purple-800  hover:bg-purple-700 text-gray-100 p-3  rounded-lg tracking-wide font-semibold  cursor-pointer transition ease-in duration-500">
           </form>
           </div>
          <button onclick="showMenu(true)" class="text-gray-800 dark:text-gray-400 absolute top-8 right-8 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-800" aria-label="close">
@@ -39,6 +46,45 @@
     </div>
   </div>
 </div>
+
+
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script type="text/javascript">
+    $('#cat-form').on('submit', function(event){
+    event.preventDefault();
+    var serializedData = $(this).serialize();
+    $.ajax(
+    {
+        type:"POST",
+        url: "",
+        data: serializedData,
+        success: function(data)
+        {
+            var successHtml = $($.parseHTML(data.html)).find("#id_category").html();
+            $("#id_category").html(successHtml);
+
+            let menu = document.getElementById("menu");
+            menu.classList.toggle("hidden");
+
+            var x = document.getElementById("id_category");
+            var option = document.createElement("option");
+            option.id = "hello";
+            option.innerHTML ='<p>Add new Category</p>'
+            x.add(option);
+
+            var x = document.getElementById("snackbar");
+            x.classList.remove("hidden");
+            setTimeout(function(){ x.classList.add("hidden"); }, 2000);
+
+        }
+     })
+});
+</script>
+
+
+
+
+
 <script>
 
 
@@ -54,8 +100,9 @@ const showMenu = (flag) => {
   var x = document.getElementById("id_category");
   var option = document.createElement("option");
   option.id = "hello";
-  option.innerHTML ='<p>Open</p>'
+  option.innerHTML ='<p>Add new Category</p>'
   x.add(option);
+
 
 </script>
 
@@ -64,7 +111,7 @@ const showMenu = (flag) => {
   const select = document.getElementById("id_category");
   select.addEventListener('change', function handleChange(event) {
   console.log(event.target.value);
-  if(event.target.value == "Open"){
+  if(event.target.value == "Add new Category"){
   showMenu(true)
   document.getElementById("id_category").selectedIndex = 0;
   }
