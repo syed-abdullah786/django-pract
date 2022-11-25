@@ -1,5 +1,6 @@
 {% extends "./base.html" %}
 {% load tailwind_filters %}
+{% load widget_tweaks %}
 {% block content %}
 <div id="snackbar" class="fixed top-1.5 right-1.5 hidden w-[300px] mb-2 select-none border-l-4 border-green-400 bg-green-100 p-4 font-medium hover:border-green-500">Category Added</div>
 
@@ -10,7 +11,18 @@
             </div>
           <form method="POST">
                         {% csrf_token%}
-        {{pro_form|crispy}}
+<!--        {{pro_form|crispy}}-->
+              {{pro_form.title.label_tag}}
+            {% render_field pro_form.title|add_class:"mb-2 focus:outline-none border-b w-full pb-2 border-sky-400 placeholder-gray-500"  placeholder="Title" %}
+              {{pro_form.description.label_tag}}
+            {% render_field pro_form.description|add_class:"mb-2 focus:outline-none border-b w-full pb-2 border-sky-400 placeholder-gray-500"  placeholder="description" %}
+              {{pro_form.price.label_tag}}
+            {% render_field pro_form.price|add_class:"mb-2 focus:outline-none border-b w-full pb-2 border-sky-400 placeholder-gray-500"  placeholder="Price" %}
+           {{pro_form.in_stock.label_tag}}
+              {% render_field pro_form.in_stock|add_class:"mb-2 focus:outline-none border-b w-full pb-2 border-sky-400 placeholder-gray-500"  placeholder="Items in stock" %}
+           {{pro_form.category.label_tag}}
+              {% render_field pro_form.category|add_class:"mb-2 focus:outline-none border-b w-full pb-2 border-sky-400 placeholder-gray-500" %}
+
 
                         <input type="submit" class="mt-8 w-full flex justify-center bg-purple-800  hover:bg-purple-700 text-gray-100 p-3  rounded-lg tracking-wide font-semibold  cursor-pointer transition ease-in duration-500">
                     </form>
@@ -66,6 +78,7 @@
             let menu = document.getElementById("menu");
             menu.classList.toggle("hidden");
 
+            document.getElementById('id_category_name').value = '';
             var x = document.getElementById("id_category");
             var option = document.createElement("option");
             option.id = "hello";

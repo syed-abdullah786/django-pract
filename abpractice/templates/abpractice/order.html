@@ -20,7 +20,7 @@
 								</th>
 								<th
 									class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-									Created at
+									Order Date
 								</th>
 								<th
 									class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
@@ -29,6 +29,10 @@
 								<th
 									class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
 									Status
+								</th>
+								<th
+									class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+									Details
 								</th>
 							</tr>
 						</thead>
@@ -39,7 +43,7 @@
 									<div class="flex items-center">
 											<div class="ml-3">
 												<p class="text-gray-900 whitespace-no-wrap">
-													{{order.id}}
+													{{order.order_id}}
 												</p>
 											</div>
 										</div>
@@ -83,6 +87,11 @@
 									</span>
 									{% endif %}
 								</td>
+								<td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+									<p class="text-gray-900 whitespace-no-wrap">
+										<button onclick="fetcing_product_data({{order.id}})" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 border border-blue-500 rounded">Product Details</button>
+									</p>
+								</td>
 							</tr>
 						{% endfor %}
 						</tbody>
@@ -94,6 +103,149 @@
 
 			</div>
 		</div>
+
+
+
+<div class="py-12 bg-gray-700 hidden transition duration-150 ease-in-out z-10 fixed min-h-full min-w-full top-0 right-0 h-full left-0" id="modal">
+                <div role="alert" class="container mx-auto w-11/12 md:w-6/8">
+                    <div class="relative py-8 px-5 md:px-10 bg-white shadow-md rounded border border-gray-400">
+
+                        <h1 class="text-gray-800 font-lg font-bold tracking-normal leading-tight mb-4">Ordered Products</h1>
+
+
+							<div class="inline-block min-w-full shadow rounded-lg overflow-hidden">
+					<table class="min-w-full leading-normal" id="table">
+						<thead>
+							<tr>
+								<th
+									class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+									Product Title
+								</th>
+								<th
+									class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+									Product Description
+								</th>
+								<th
+									class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+									Product Category
+								</th>
+								<th
+									class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+									Product Price
+								</th>
+							</tr>
+						</thead>
+						<tbody>
+						{% for product in products %}
+							<tr>
+								<td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+									<div class="flex items-center">
+											<div class="ml-3">
+												<p class="text-gray-900 whitespace-no-wrap">
+													{{product.product_title}}
+												</p>
+											</div>
+										</div>
+								</td>
+								<td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+									<p class="text-gray-900 whitespace-no-wrap">{{product.product_description}}</p>
+								</td>
+								<td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+									<p class="text-gray-900 whitespace-no-wrap">
+										{{product.product_category}}
+									</p>
+								</td>
+								<td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+									<p class="text-gray-900 whitespace-no-wrap">
+										{{product.product_price}}
+									</p>
+								</td>
+
+							</tr>
+						{% endfor %}
+						</tbody>
+					</table>
+				</div>
+                        <button class="cursor-pointer absolute top-0 right-0 mt-4 mr-5 text-gray-400 hover:text-gray-600 transition duration-150 ease-in-out rounded focus:ring-2 focus:outline-none focus:ring-gray-600" onclick="modalHandler()" aria-label="close modal" role="button">
+                            <svg  xmlns="http://www.w3.org/2000/svg"  class="icon icon-tabler icon-tabler-x" width="20" height="20" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" />
+                                <line x1="18" y1="6" x2="6" y2="18" />
+                                <line x1="6" y1="6" x2="18" y2="18" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script type="text/javascript">
+    function fetcing_product_data(id){
+    $.ajax(
+    {
+        type:"GET",
+        url: "",
+        data:{
+                 "order_id": id
+        },
+        success: function( data)
+        {
+        	console.log(data.html);
+             var successHtml = $($.parseHTML(data.html)).find("#table").html();
+             console.log('successHtml');
+             console.log(successHtml);
+             $("#table").html(successHtml);
+             x = document.getElementById('modal');
+             x.classList.remove("hidden");
+        }
+     })
+}
+</script>
+
+
+
+ <script>
+function modalHandler()
+{
+x = document.getElementById('modal');
+             x.classList.add("hidden");
+}
+
+
+<!--                function modalHandler(val) {-->
+<!--                var a= 'modal-'-->
+<!--                var b=a.concat(prod)-->
+<!--                let modal = document.getElementById('modal');-->
+<!--                    if (val) {-->
+<!--                        fadeIn(modal);-->
+<!--                    } else {-->
+<!--                        fadeOut(modal);-->
+<!--                    }-->
+<!--                }-->
+<!--                function fadeOut(el) {-->
+<!--                    el.style.opacity = 1;-->
+<!--                    (function fade() {-->
+<!--                        if ((el.style.opacity -= 0.1) < 0) {-->
+<!--                            el.style.display = "none";-->
+<!--                        } else {-->
+<!--                            requestAnimationFrame(fade);-->
+<!--                        }-->
+<!--                    })();-->
+<!--                }-->
+<!--                function fadeIn(el, display) {-->
+<!--                    el.style.opacity = 0;-->
+<!--                    el.style.display = display || "flex";-->
+<!--                    (function fade() {-->
+<!--                        let val = parseFloat(el.style.opacity);-->
+<!--                        if (!((val += 0.2) > 1)) {-->
+<!--                            el.style.opacity = val;-->
+<!--                            requestAnimationFrame(fade);-->
+<!--                        }-->
+<!--                    })();-->
+<!--                }-->
+            </script>
+
+
 
 
 {% endblock %}

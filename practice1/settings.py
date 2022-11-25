@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'abpractice',
     'crispy_forms',
     'crispy_tailwind',
+    'widget_tweaks',
+    'active_link',
 ]
 
 MIDDLEWARE = [

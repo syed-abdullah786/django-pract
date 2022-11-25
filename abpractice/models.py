@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+import uuid
+
 
 class CustomUser(AbstractUser):
     gender = [
@@ -44,7 +46,8 @@ class Order(models.Model):
     state = [
         ('A', 'active'),
         ('I', 'inactive'),
-        ('C','canceled')]
+        ('C', 'canceled')]
+    order_id = models.CharField(max_length=16)
     total_price = models.IntegerField()
     user = models.ForeignKey(CustomUser, on_delete=models.RESTRICT)
     status = models.CharField(choices=state, default='A', max_length=30)

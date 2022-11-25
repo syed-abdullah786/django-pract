@@ -1,3 +1,6 @@
+import string
+import random
+
 from django.core import serializers
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
@@ -116,10 +119,14 @@ def add_product(request):
             form = ProductForm
             html = render_to_string('abpractice/add_product.html', {'pro_form': form})
             return JsonResponse({'html': html})
-    else:
+
         form = ProductForm
         cat_form = CategoryForm
         return render(request, 'abpractice/add_product.html', {'pro_form': form,'cat_form':cat_form})
+    if request.method == 'GET':
+        form = ProductForm
+        cat_form = CategoryForm
+        return render(request, 'abpractice/add_product.html', {'pro_form': form, 'cat_form': cat_form})
 
 
 @user_passes_test(restricted_check)
@@ -175,14 +182,15 @@ def cart(request):
 def order(request):
     if request.method == 'POST':
         carts = Cart.objects.filter(user_id=request.user.id)
-        a = 0;
+        a = 0
         for cart in carts:
             if cart.product.in_stock:
                 a += cart.product.price
                 pass
             else:
                 return redirect('cart')
-        obj = Order(total_price=a, user_id=request.user.id,
+        ref_code = unique_id()
+        obj = Order(order_id=ref_code, total_price=a, user_id=request.user.id,
                         shipping_address=request.POST['shipping_address'])
         obj.save()
         for cart in carts:
@@ -196,9 +204,22 @@ def order(request):
             cart.delete()
         orders = Order.objects.filter(user_id=request.user.id)
         return render(request, 'abpractice/order.html', {'orders': orders})
+
+    if is_ajax(request) and request.method == "GET":
+        products = Placed_Order.objects.filter(order_id=request.GET['order_id'])
+        html = render_to_string('abpractice/order.html', {'products': products})
+        return JsonResponse({'html': html})
+
     orders = Order.objects.filter(user_id=request.user.id)
     return render(request, 'abpractice/order.html', {'orders': orders})
 
+def unique_id():
+    res = ''.join(random.choices(string.ascii_uppercase +
+                                 string.digits, k=16))
+    orders = Order.objects.filter(order_id=res)
+    if orders:
+        unique_id()
+    return res
 
 def register(request):
     if request.method == 'POST':
