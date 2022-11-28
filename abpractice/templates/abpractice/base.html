@@ -4,6 +4,8 @@
 </head>
 <body class="bg-gray-200">
 {% load active_link_tags %}
+{% load ab_tag %}
+
 <nav class=" bg-white w-full flex relative justify-between items-center mx-auto px-8 h-20">
     <!-- logo -->
     <div class="inline-flex">
@@ -28,10 +30,11 @@
         <div class="inline-block">
             <div class="inline-flex items-center max-w-full">
 				<a href="{% url 'index'%}" class="{% active_link 'index' 'text-blue-500' %} hover:text-blue-500 font-bold"> Home </a>
-			<a href="{% url 'cart'%}" class="{% active_link 'cart' 'text-blue-500' %} hover:text-blue-500 font-bold mx-8" aria-current="page"> Cart </a>
+			<a href="{% url 'cart'%}" class="{% active_link 'cart' 'text-blue-500' %} hover:text-blue-500 font-bold mx-8" aria-current="page" id="cart_no"> Cart ({% any_function request %}) </a>
 			<a href="{% url 'order'%}" class="{% active_link 'order' 'text-blue-500' %} hover:text-blue-500 font-bold "> Dashboard </a>
 				{% if user.is_staff %}
 			<a href="{% url 'add_product'%}" class="{% active_link 'add_product' 'text-blue-500' %} mx-8 hover:text-blue-500 font-bold"> Add Product </a>
+			<a href="{% url 'edit_product'%}" class="{% active_link 'edit_product' 'text-blue-500' %} hover:text-blue-500 font-bold">Edit Product </a>
 			{% endif %}
             </div>
         </div>

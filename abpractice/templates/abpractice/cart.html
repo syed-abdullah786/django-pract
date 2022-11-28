@@ -71,7 +71,7 @@
 <!--                                    </button>-->
 <!--                                    </form>-->
                                     <button onclick="al({{cart.id}},'{{cart.product.title}}')" id="del">
-                                        <svg class="w-8 h-8 hover:text-blue-600 rounded-full hover:bg-gray-100 p-1"
+                                        <svg class="w-8 h-8 hover:text-red-500 text-red-800 rounded-full hover:bg-gray-100 p-1"
                                             fill="none" stroke="currentColor" viewBox="0 0 24 24"
                                             xmlns="http://www.w3.org/2000/svg">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -130,6 +130,8 @@
         {
              var successHtml = $($.parseHTML(data.html)).find("#changed").html();
              $("#changed").html(successHtml);
+             var successHtml = $($.parseHTML(data.html)).find("#cart_no").html();
+             $("#cart_no").html(successHtml);
              var x = document.getElementById("snackbar");
              x.innerHTML=name + ' removed from cart';
              x.classList.remove("hidden");

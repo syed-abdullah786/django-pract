@@ -19,7 +19,7 @@
               {{pro_form.price.label_tag}}
             {% render_field pro_form.price|add_class:"mb-2 focus:outline-none border-b w-full pb-2 border-sky-400 placeholder-gray-500"  placeholder="Price" %}
            {{pro_form.in_stock.label_tag}}
-              {% render_field pro_form.in_stock|add_class:"mb-2 focus:outline-none border-b w-full pb-2 border-sky-400 placeholder-gray-500"  placeholder="Items in stock" %}
+              {% render_field pro_form.in_stock|add_class:"mb-2 focus:outline-none border-b w-full pb-2 border-sky-400 placeholder-gray-500"  placeholder="Items in stock" min="1" %}
            {{pro_form.category.label_tag}}
               {% render_field pro_form.category|add_class:"mb-2 focus:outline-none border-b w-full pb-2 border-sky-400 placeholder-gray-500" %}
 
@@ -44,7 +44,10 @@
         <div class="mt">
           <form id="cat-form">
             {% csrf_token %}
-          {{cat_form|crispy}}
+<!--          {{cat_form|crispy}}-->
+               {{cat_form.category_name.label_tag}}
+              {% render_field cat_form.category_name|add_class:"mb-2 focus:outline-none border-b w-full pb-2 border-sky-400 placeholder-gray-500" placeholder="Category Name"%}
+
             <input type="submit" class="mt-6 w-full flex justify-center bg-purple-800  hover:bg-purple-700 text-gray-100 p-3  rounded-lg tracking-wide font-semibold  cursor-pointer transition ease-in duration-500">
           </form>
           </div>

@@ -13,8 +13,11 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, logout
 from django.shortcuts import redirect
-
 from django.contrib.auth.decorators import login_required, user_passes_test
+
+from .templatetags.ab_tag import any_function
+
+
 def restricted_check(user):
     # return user.groups.filter(name='view_restrict_group').exists()
     if user.is_superuser:
@@ -78,7 +81,8 @@ def index(request):
             queryset.save()
         # data = serializers.serialize('json', queryset)
         message = request.POST['title'] + ' Added to cart'
-        return JsonResponse({'res': message})
+        html = render_to_string('abpractice/index.html', {'request': request})
+        return JsonResponse({'res': message,'html':html})
     return render(request, 'abpractice/index.html', {'product': product, 'category': category})
 
 
@@ -117,7 +121,7 @@ def add_product(request):
             # for entry in all_entries:
             #     mydict[entry['id']] = entry['category_name']
             form = ProductForm
-            html = render_to_string('abpractice/add_product.html', {'pro_form': form})
+            html = render_to_string('abpractice/add_product.html', {'pro_form': form,'request': request})
             return JsonResponse({'html': html})
 
         form = ProductForm
@@ -132,17 +136,28 @@ def add_product(request):
 @user_passes_test(restricted_check)
 @login_required(login_url='login')
 def edit_product(request):
+    if request.method == 'POST':
+        form = CategoryForm(request.POST)
+        if form.is_valid():
+            form.save()
+            form = ProductForm
+            product = Product.objects.all()
+            category = Category.objects.all()
+            html = render_to_string('abpractice/edit_product.html', { 'product': product,'category': category,'request': request})
+            return JsonResponse({'html': html})
     product = Product.objects.all()
     category = Category.objects.all()
-    return render(request, 'abpractice/edit_product.html', {'product': product, 'category': category})
+    cat_form = CategoryForm
+    return render(request, 'abpractice/edit_product.html', {'product': product, 'category': category,
+                                                            'cat_form': cat_form})
 
 
 def delete(request, id):
     obj = get_object_or_404(Product, id=id)
     if request.method == "POST":
         obj.delete()
-        return redirect('index')
-    return redirect('index')
+        return redirect('edit_product')
+    return redirect('edit_product')
 
 
 def update(request, id):
@@ -154,8 +169,8 @@ def update(request, id):
         obj.in_stock = request.POST['in_stock']
         obj.category_id = request.POST['category']
         obj.save()
-        return redirect('index')
-    return redirect('index')
+        return redirect('edit_product')
+    return redirect('edit_product')
 
 
 def is_ajax(request):
@@ -170,7 +185,7 @@ def cart(request):
         a = 0;
         for cat in cart:
             a += cat.product.price
-        html = render_to_string('abpractice/cart.html', {'carts': cart})
+        html = render_to_string('abpractice/cart.html', {'carts': cart,'request': request})
         return JsonResponse({'html': html, 'total': a})
     cart = Cart.objects.filter(Q(user_id=request.user.id))
     a = 0;
@@ -207,7 +222,7 @@ def order(request):
 
     if is_ajax(request) and request.method == "GET":
         products = Placed_Order.objects.filter(order_id=request.GET['order_id'])
-        html = render_to_string('abpractice/order.html', {'products': products})
+        html = render_to_string('abpractice/order.html', {'products': products,'request': request})
         return JsonResponse({'html': html})
 
     orders = Order.objects.filter(user_id=request.user.id)
