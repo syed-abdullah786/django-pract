@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'crispy_tailwind',
     'widget_tweaks',
     'active_link',
+    'verify_email.apps.VerifyEmailConfig',
 ]
 
 MIDDLEWARE = [
@@ -133,3 +134,13 @@ MEDIA_URL = '/files/'
 
 # custom user
 AUTH_USER_MODEL = 'abpractice.CustomUser'
+
+# mail code
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'test22123590@gmail.com'
+EMAIL_HOST_PASSWORD = 'nxlczatjsplakqfm'
+EXPIRE_AFTER = "1h"
+LOGIN_URL = 'login'

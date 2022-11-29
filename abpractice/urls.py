@@ -12,5 +12,6 @@ path('delete/<int:id>', views.delete, name="delete"),
 path('cart/', views.cart, name="cart"),
 path('order/', views.order, name="order"),
 path('register/', views.register, name ='register'),
+path('email/', views.email, name ='email'),
 # path('cart/ajax/', views.ajax_del, name="ajax_del")
 ]

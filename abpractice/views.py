@@ -1,21 +1,28 @@
 import string
 import random
-
-from django.core import serializers
+from verify_email.email_handler import send_verification_email
+from django.contrib import messages
+from django.core.mail import send_mail, EmailMultiAlternatives
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404
-from django.template.loader import render_to_string
+from django.template.loader import render_to_string, get_template
 from .models import Product, Category, Cart, Order, Placed_Order
 from .forms import UserForm, ProductForm, CategoryForm, CartForm
 from django.views import View
-from django.contrib.auth import authenticate
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, logout
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 
-from .templatetags.ab_tag import any_function
+
+def email(request):
+    return render(request, 'abpractice/email.html')
+    # order = Order.objects.get(id=24)
+    # products = Placed_Order.objects.filter(Q(order_id=24))
+    # return render(request,'abpractice/email_template.html',{
+    #    'order':order, 'products':products , 'user': request.user
+    # })
 
 
 def restricted_check(user):
@@ -70,19 +77,23 @@ def index(request):
     product = Product.objects.all()
     category = Category.objects.all()
     if request.method == 'POST' and is_ajax(request):
-        queryset = Cart.objects.filter(
-            Q(product_id=request.POST['product_id']) & Q(user_id=request.POST['user_id'])).first()
-        print(request.POST['title'])
-        if queryset:
-            message = request.POST['title'] + ' Already added'
-            return JsonResponse({'res': message})
+        check_stock = Product.objects.get(id=request.POST['product_id'])
+        if check_stock.in_stock:
+            queryset = Cart.objects.filter(
+                Q(product_id=request.POST['product_id']) & Q(user_id=request.POST['user_id'])).first()
+            if queryset:
+                message = request.POST['title'] + ' Already added'
+                return JsonResponse({'res': message})
+            else:
+                queryset = Cart(product_id=request.POST['product_id'], user_id=request.POST['user_id'], quantity=request.POST['quantity'])
+                queryset.save()
+            # data = serializers.serialize('json', queryset)
+            message = request.POST['title'] + ' Added to cart'
+            html = render_to_string('abpractice/index.html', {'request': request})
+            return JsonResponse({'res': message,'html':html})
         else:
-            queryset = Cart(product_id=request.POST['product_id'], user_id=request.POST['user_id'], quantity=request.POST['quantity'])
-            queryset.save()
-        # data = serializers.serialize('json', queryset)
-        message = request.POST['title'] + ' Added to cart'
-        html = render_to_string('abpractice/index.html', {'request': request})
-        return JsonResponse({'res': message,'html':html})
+            message = 'Error'
+            return JsonResponse({'res': message})
     return render(request, 'abpractice/index.html', {'product': product, 'category': category})
 
 
@@ -203,6 +214,7 @@ def order(request):
                 a += cart.product.price
                 pass
             else:
+                cart.delete()
                 return redirect('cart')
         ref_code = unique_id()
         obj = Order(order_id=ref_code, total_price=a, user_id=request.user.id,
@@ -217,6 +229,20 @@ def order(request):
                                order_id=obj.id)
             Placed_obj.save()
             cart.delete()
+
+        order = Order.objects.get(id=obj.id)
+        products = Placed_Order.objects.filter(Q(order_id=obj.id))
+        html_message = render_to_string(
+            'abpractice/email_template.html',{'order': order, 'products': products, 'user': request.user})
+        print(html_message)
+        send_mail(
+            'order',
+            'saad bhai kya order krna a????',
+            'test22123590@gmail.com',
+            [request.user.email],
+             html_message = html_message,
+            fail_silently=False,
+        )
         orders = Order.objects.filter(user_id=request.user.id)
         return render(request, 'abpractice/order.html', {'orders': orders})
 
@@ -240,20 +266,21 @@ def register(request):
     if request.method == 'POST':
         form = UserForm(request.POST)
         if form.is_valid():
-            form.save()
-            # username = form.cleaned_data.get('username')
-            # email = form.cleaned_data.get('email')
-            # ######################### mail system ####################################
-            # htmly = get_template('user/Email.html')
+            inactive_user = send_verification_email(request, form)
+            username = form.cleaned_data.get('username')
+            email = form.cleaned_data.get('email')
+            return redirect('email')
+            ######################### mail system ####################################
+            # htmly = get_template('abpractice/email.html')
             # d = { 'username': username }
-            # subject, from_email, to = 'welcome', 'your_email@gmail.com', email
+            # subject, from_email, to = 'welcome', 'test22123590@gmail.com', email
             # html_content = htmly.render(d)
             # msg = EmailMultiAlternatives(subject, html_content, from_email, [to])
             # msg.attach_alternative(html_content, "text/html")
             # msg.send()
             # ##################################################################
             # messages.success(request, f'Your account has been created ! You are now able to log in')
-            return redirect('login')
+            # return redirect('login')
     else:
         form = UserForm()
     return render(request, 'abpractice/register.html', {'form': form, 'title':'register here'})

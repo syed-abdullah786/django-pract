@@ -15,7 +15,7 @@
 		</thead>
 		<tbody class="block md:table-row-group">
 		{% for prod in product %}
-<div id="snackbar-{{prod.id}}" class="fixed top-1.5 right-1.5 hidden w-[300px] mb-2 select-none border-l-4 border-green-400 bg-green-100 p-4 font-medium hover:border-green-500">Added to cart</div>
+<div id="snackbar-{{prod.id}}" class="fixed top-1.5 right-1.5 hidden w-[300px] mb-2 select-none border-l-4 border-green-400 bg-green-100 p-4 font-medium">Added to cart</div>
 
 			<tr class="bg-gray-300 border border-grey-500 md:border-none block md:table-row">
 				<td class="p-2 md:border md:border-grey-500 text-left block md:table-cell">{{prod.title}}</td>
@@ -49,11 +49,17 @@
         data: serializedData,
         success: function( data )
         {
+            if (data.res != 'Error'){
              var successHtml = $($.parseHTML(data.html)).find("#cart_no").html();
-             $("#cart_no").html(successHtml);
+             $("#cart_no").html(successHtml);}
+
              var a= 'snackbar-{{prod.id}}';
              var x = document.getElementById(a);
              x.innerHTML=data.res;
+             if (data.res == 'Error'){
+             x.classList.add("border-red-400");
+             x.classList.add("bg-red-100");
+             }
              x.classList.remove("hidden");
              setTimeout(function(){ x.classList.add("hidden"); }, 2000);
         }
