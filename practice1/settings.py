@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'crispy_tailwind',
     'widget_tweaks',
     'active_link',
-    'verify_email.apps.VerifyEmailConfig',
 ]
 
 MIDDLEWARE = [
@@ -142,5 +141,3 @@ EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'test22123590@gmail.com'
 EMAIL_HOST_PASSWORD = 'nxlczatjsplakqfm'
-EXPIRE_AFTER = "1h"
-LOGIN_URL = 'login'

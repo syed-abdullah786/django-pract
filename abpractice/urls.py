@@ -13,5 +13,6 @@ path('cart/', views.cart, name="cart"),
 path('order/', views.order, name="order"),
 path('register/', views.register, name ='register'),
 path('email/', views.email, name ='email'),
+path('activate/<uidb64>/<token>/', views.ActivateAccount.as_view(), name='activate'),
 # path('cart/ajax/', views.ajax_del, name="ajax_del")
 ]

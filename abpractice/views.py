@@ -1,19 +1,26 @@
 import string
 import random
-from verify_email.email_handler import send_verification_email
+from django.utils.encoding import force_bytes
+from django.contrib.sites.shortcuts import get_current_site
+from django.utils.http import urlsafe_base64_encode
 from django.contrib import messages
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.template.loader import render_to_string, get_template
-from .models import Product, Category, Cart, Order, Placed_Order
+from .models import Product, Category, Cart, Order, Placed_Order, CustomUser
 from .forms import UserForm, ProductForm, CategoryForm, CartForm
 from django.views import View
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, logout
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
+
+from .tokens import account_activation_token
+from django.contrib.auth.models import User
+from django.utils.encoding import force_str
+from django.utils.http import urlsafe_base64_decode
 
 
 def email(request):
@@ -266,10 +273,22 @@ def register(request):
     if request.method == 'POST':
         form = UserForm(request.POST)
         if form.is_valid():
-            inactive_user = send_verification_email(request, form)
-            username = form.cleaned_data.get('username')
-            email = form.cleaned_data.get('email')
-            return redirect('email')
+            user = form.save(commit=False)
+            user.is_active = False  # Deactivate account till it is confirmed
+            user.save()
+            current_site = get_current_site(request)
+            subject = 'Activate Your MySite Account'
+            message = render_to_string('abpractice/account_activation.html', {
+                'user': user,
+                'domain': current_site.domain,
+                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                'token': account_activation_token.make_token(user),
+            })
+            user.email_user(subject, message, from_email = 'test22123590@gmail.com')
+
+            messages.success(request, ('Please Confirm your email to complete registration.'))
+
+            return redirect('login')
             ######################### mail system ####################################
             # htmly = get_template('abpractice/email.html')
             # d = { 'username': username }
@@ -292,3 +311,25 @@ def register(request):
     #     obj = get_object_or_404(Cart, id=request.POST['cart_id'])
     #     print(obj)
         # obj.delete()
+
+
+
+class ActivateAccount(View):
+
+    def get(self, request, uidb64, token, *args, **kwargs):
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = CustomUser.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError):
+            user = None
+
+        if user is not None and account_activation_token.check_token(user, token):
+            user.is_active = True
+            # user.profile.email_confirmed = True
+            user.save()
+            login(request, user)
+            messages.success(request, ('Your account have been confirmed.'))
+            return redirect('login')
+        else:
+            messages.warning(request, ('The confirmation link was invalid, possibly because it has already been used.'))
+            return redirect('login')
