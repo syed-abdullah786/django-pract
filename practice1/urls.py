@@ -21,6 +21,5 @@ from django.conf import settings
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('airbnb/', include('abpractice.urls')),
-    path('verification/', include('verify_email.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 # after + (on above line) for media show on admin panel

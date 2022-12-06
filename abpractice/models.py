@@ -20,6 +20,8 @@ class Product(models.Model):
     price = models.IntegerField()
     in_stock = models.IntegerField()
     category = models.ForeignKey('Category', on_delete=models.RESTRICT, blank=True)
+    photo = models.ImageField(upload_to='cars')
+    specs = models.FileField(upload_to='specs')
 
     def __str__(self):
         return self.title
@@ -57,8 +59,10 @@ class Order(models.Model):
 class Placed_Order(models.Model):
     order = models.ForeignKey(Order, on_delete=models.RESTRICT)
     product_title = models.CharField(max_length=300)
+    product_photo = models.ImageField(upload_to='cars')
     product_description = models.CharField(max_length=300)
     product_price = models.IntegerField()
+    product_specs = models.FileField(upload_to='specs')
     product_category = models.CharField(max_length=300)
 
 

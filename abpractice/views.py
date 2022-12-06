@@ -1,3 +1,4 @@
+import os
 import string
 import random
 from django.utils.encoding import force_bytes
@@ -52,9 +53,9 @@ def login_user(request):
             user = form.get_user()
             login(request,user)
             return redirect('index')
-
-    else:
-        form = AuthenticationForm()
+        else:
+            print(form.errors)
+    form = AuthenticationForm()
     return render(request, 'abpractice/login.html', {'form': form})
 
 
@@ -128,9 +129,11 @@ def index(request):
 @login_required(login_url='login')
 def add_product(request):
     if request.method == 'POST':
-        form = ProductForm(request.POST)
+        form = ProductForm(request.POST, request.FILES)
+        print(form)
         if form.is_valid():
             form.save()
+            print('valid running')
         form = CategoryForm(request.POST)
         if form.is_valid():
             form.save()
@@ -141,7 +144,7 @@ def add_product(request):
             form = ProductForm
             html = render_to_string('abpractice/add_product.html', {'pro_form': form,'request': request})
             return JsonResponse({'html': html})
-
+        print('valid not running')
         form = ProductForm
         cat_form = CategoryForm
         return render(request, 'abpractice/add_product.html', {'pro_form': form,'cat_form':cat_form})
@@ -181,6 +184,18 @@ def delete(request, id):
 def update(request, id):
     if request.method == "POST":
         obj = Product.objects.get(id=id)
+        try:
+            if request.FILES['photo'] != 'Null':
+                os.remove(obj.photo.path)
+                obj.photo = request.FILES['photo']
+        except:
+            pass
+        try:
+            if request.FILES['specs'] != 'Null':
+                os.remove(obj.specs.path)
+                obj.specs = request.FILES['specs']
+        except:
+            pass
         obj.title = request.POST['title']
         obj.description = request.POST['description']
         obj.price = request.POST['price']
@@ -231,9 +246,9 @@ def order(request):
             product_obj = Product.objects.get(id=cart.product.id)
             product_obj.in_stock -= 1
             product_obj.save()
-            Placed_obj = Placed_Order(product_title=cart.product.title, product_description=cart.product.description,
+            Placed_obj = Placed_Order(product_title=cart.product.title,product_photo =cart.product.photo,  product_description=cart.product.description,
                                product_price=cart.product.price, product_category=cart.product.category.category_name,
-                               order_id=obj.id)
+                               order_id=obj.id,product_specs =cart.product.specs)
             Placed_obj.save()
             cart.delete()
 
@@ -287,8 +302,7 @@ def register(request):
             user.email_user(subject, message, from_email = 'test22123590@gmail.com')
 
             messages.success(request, ('Please Confirm your email to complete registration.'))
-
-            return redirect('login')
+            return redirect('email')
             ######################### mail system ####################################
             # htmly = get_template('abpractice/email.html')
             # d = { 'username': username }
@@ -329,7 +343,10 @@ class ActivateAccount(View):
             user.save()
             login(request, user)
             messages.success(request, ('Your account have been confirmed.'))
-            return redirect('login')
+            return redirect('verified')
         else:
-            messages.warning(request, ('The confirmation link was invalid, possibly because it has already been used.'))
-            return redirect('login')
+                messages.warning(request, ('The confirmation link was invalid, possibly because it has already been used.'))
+                return redirect('login')
+
+def verified(request):
+    return render(request,'abpractice/verified_account.html')

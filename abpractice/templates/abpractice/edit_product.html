@@ -7,10 +7,12 @@
 		<thead class="block md:table-header-group">
 			<tr class="border border-grey-500 md:border-none block md:table-row absolute -top-full md:top-auto -left-full md:left-auto  md:relative ">
 				<th class="bg-gray-600 p-2 text-white font-bold md:border md:border-grey-500 text-left block md:table-cell">Title</th>
+				<th class="bg-gray-600 p-2 text-white font-bold md:border md:border-grey-500 text-left block md:table-cell">Image</th>
 				<th class="bg-gray-600 p-2 text-white font-bold md:border md:border-grey-500 text-left block md:table-cell">Description</th>
 				<th class="bg-gray-600 p-2 text-white font-bold md:border md:border-grey-500 text-left block md:table-cell">Price</th>
 				<th class="bg-gray-600 p-2 text-white font-bold md:border md:border-grey-500 text-left block md:table-cell">Stock</th>
 				<th class="bg-gray-600 p-2 text-white font-bold md:border md:border-grey-500 text-left block md:table-cell">Category</th>
+				<th class="bg-gray-600 p-2 text-white font-bold md:border md:border-grey-500 text-left block md:table-cell">Details</th>
 				<th class="bg-gray-600 p-2 text-white font-bold md:border md:border-grey-500 text-left block md:table-cell">Actions</th>
 			</tr>
 		</thead>
@@ -20,10 +22,18 @@
 
 			<tr class="bg-gray-300 border border-grey-500 md:border-none block md:table-row">
 				<td class="p-2 md:border md:border-grey-500 text-left block md:table-cell">{{prod.title}}</td>
+				<td class="p-2 md:border md:border-grey-500 text-left block md:table-cell"><img class="w-[100px]" src="{{prod.photo.url}}" /></td>
 				<td class="p-2 md:border md:border-grey-500 text-left block md:table-cell">{{prod.description}}</td>
 				<td class="p-2 md:border md:border-grey-500 text-left block md:table-cell">{{prod.price}}</td>
 				<td class="p-2 md:border md:border-grey-500 text-left block md:table-cell">{{prod.in_stock}}</td>
                 <td class="p-2 md:border md:border-grey-500 text-left block md:table-cell">{{prod.category}}</td>
+                <td class="p-2 md:border md:border-grey-500 text-left block md:table-cell">
+                    <a href="{{prod.specs.url}}" download>
+                        <button class="bg-green-500 hover:bg-green-600 text-white font-bold py-1 px-2 border border-green-500 rounded">
+                            Download
+                        </button>
+                    </a>
+                </td>
 				<td class="p-2 md:border md:border-grey-500 text-left block md:table-cell">
 					<span class="inline-block w-1/3 md:hidden font-bold">Actions</span>
 					{% if user.is_staff %}
@@ -105,26 +115,36 @@
 <!-- inner-MOodel Code block ends -->
 
 {% for prod in product %}
-            <div class="py-12 bg-gray-700 hidden transition duration-150 ease-in-out z-10 absolute top-0 right-0 bottom-0 left-0" id="modal-{{prod.id}}">
+            <div class="py-12 bg-gray-700/50 hidden transition duration-150 ease-in-out z-10 absolute top-0 right-0 left-0" id="modal-{{prod.id}}">
                 <div role="alert" class="container mx-auto w-11/12 md:w-2/3 max-w-lg">
                     <div class="relative py-8 px-5 md:px-10 bg-white shadow-md rounded border border-gray-400">
 
                         <h1 class="text-gray-800 font-lg font-bold tracking-normal leading-tight mb-4">Update product</h1>
-                        <form action="{% url 'update' prod.id %}" method="post">
+                        <form action="{% url 'update' prod.id %}" method="post" enctype="multipart/form-data">
                             {% csrf_token %}
                         <label for="title" class="text-gray-800 text-sm font-bold leading-tight tracking-normal">Title</label>
                         <input id="title" name="title" class="mb-5 mt-2 text-gray-600 focus:outline-none focus:border focus:border-indigo-700 font-normal w-full h-10 flex items-center pl-3 text-sm border-gray-300 rounded border" value="{{prod.title}}" />
-                         <label for="description" class="text-gray-800 text-sm font-bold leading-tight tracking-normal">Description</label>
+                         <label class="text-gray-800 text-sm font-bold leading-tight tracking-normal">Image</label>
+                       <img  class="w-[100px]" src="{{prod.photo.url}}">
+                        <div class="mb-5 mt-2 text-gray-600 focus:outline-none focus:border focus:border-indigo-700 font-normal w-full h-10 flex items-center pl-3 text-sm border-gray-300 rounded border" >
+                        <input type="file" name="photo" id="img"/>
+                         </div>
+                            <label for="description" class="text-gray-800 text-sm font-bold leading-tight tracking-normal">Description</label>
                         <input id="description" name="description" class="mb-5 mt-2 text-gray-600 focus:outline-none focus:border focus:border-indigo-700 font-normal w-full h-10 flex items-center pl-3 text-sm border-gray-300 rounded border" value="{{prod.description}}" />
                          <label for="price" class="text-gray-800 text-sm font-bold leading-tight tracking-normal">Price</label>
                         <input id="price" type="number" name="price" class="mb-5 mt-2 text-gray-600 focus:outline-none focus:border focus:border-indigo-700 font-normal w-full h-10 flex items-center pl-3 text-sm border-gray-300 rounded border" value="{{prod.price}}" />
                          <label for="in_stock" class="text-gray-800 text-sm font-bold leading-tight tracking-normal">In stock</label>
                         <input id="in_stock" type="number" min="1" name="in_stock" class="mb-5 mt-2 text-gray-600 focus:outline-none focus:border focus:border-indigo-700 font-normal w-full h-10 flex items-center pl-3 text-sm border-gray-300 rounded border" value="{{prod.in_stock}}" />
+                            <label class="text-gray-800 text-sm font-bold leading-tight tracking-normal">Product Details</label>
+                            <p>{{prod.specs}}</p>
+                            <div class="mb-5 mt-2 text-gray-600 focus:outline-none focus:border focus:border-indigo-700 font-normal w-full h-10 flex items-center pl-3 text-sm border-gray-300 rounded border" >
+                        <input type="file" name="specs" id="detail"/>
+                         </div>
                          <label for="category" class="text-gray-800 text-sm font-bold leading-tight tracking-normal">Category</label>
 
-                            <select name="category" id="category">
+                            <select class="mb-5 mt-2 text-gray-600 focus:outline-none focus:border focus:border-indigo-700 font-normal w-full h-10 flex items-center pl-3 text-sm border-gray-300 rounded border" name="category" id="category">
                                  {% for cat in category %}
-                              <option value="{{cat.id}}" {% if cat == prod.category %} selected {% endif %}>{{cat}}</option>
+                              <option  value="{{cat.id}}" {% if cat == prod.category %} selected {% endif %}>{{cat}}</option>
                                 {% endfor %}
                             </select>
 

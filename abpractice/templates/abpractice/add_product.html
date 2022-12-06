@@ -9,17 +9,22 @@
             <div class="sm:text-3xl text-2xl font-semibold text-center text-sky-600  mb-12">
                 Add Product
             </div>
-          <form method="POST">
+          <form method="POST" enctype="multipart/form-data">
                         {% csrf_token%}
 <!--        {{pro_form|crispy}}-->
+              {{form.non_field_errors}}
               {{pro_form.title.label_tag}}
             {% render_field pro_form.title|add_class:"mb-2 focus:outline-none border-b w-full pb-2 border-sky-400 placeholder-gray-500"  placeholder="Title" %}
+             {{pro_form.photo.label_tag}}
+            {% render_field pro_form.photo|add_class:"mb-2 focus:outline-none w-full pb-2 placeholder-gray-500" %}
               {{pro_form.description.label_tag}}
             {% render_field pro_form.description|add_class:"mb-2 focus:outline-none border-b w-full pb-2 border-sky-400 placeholder-gray-500"  placeholder="description" %}
               {{pro_form.price.label_tag}}
             {% render_field pro_form.price|add_class:"mb-2 focus:outline-none border-b w-full pb-2 border-sky-400 placeholder-gray-500"  placeholder="Price" %}
            {{pro_form.in_stock.label_tag}}
               {% render_field pro_form.in_stock|add_class:"mb-2 focus:outline-none border-b w-full pb-2 border-sky-400 placeholder-gray-500"  placeholder="Items in stock" min="1" %}
+          {{pro_form.specs.label_tag}}
+            {% render_field pro_form.specs|add_class:"mb-2 focus:outline-none w-full pb-2 placeholder-gray-500" %}
            {{pro_form.category.label_tag}}
               {% render_field pro_form.category|add_class:"mb-2 focus:outline-none border-b w-full pb-2 border-sky-400 placeholder-gray-500" %}
 
