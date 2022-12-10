@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/4.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
-
+import os.path
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -38,6 +38,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'abpractice',
+    'crispy_forms',
+    'crispy_tailwind',
+    'widget_tweaks',
+    'active_link',
 ]
 
 MIDDLEWARE = [
@@ -129,3 +133,11 @@ MEDIA_URL = '/files/'
 
 # custom user
 AUTH_USER_MODEL = 'abpractice.CustomUser'
+
+# mail code
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'test22123590@gmail.com'
+EMAIL_HOST_PASSWORD = 'nxlczatjsplakqfm'

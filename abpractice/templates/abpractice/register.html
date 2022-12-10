@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
+</head>
+<body>
+<!-- component -->
+{% load tailwind_filters %}
+{% load widget_tweaks %}
+<div class="w-full block bg-gradient-to-r from-blue-100 via-purple-100 to-pink-100 p-4 flex items-center justify-center" >
+    <div class="bg-white mx-64 my- 20 py-6 px-10 w-full ">
+        <div class="sm:text-3xl text-2xl font-semibold text-center text-sky-600  mb-12">
+            Registration Form
+        </div>
+        <form method="post">
+            {% csrf_token %}
+<!--        {{form|crispy}}-->
+            {{form.non_field_errors}}
+            {{form.username.label_tag}}
+            {% render_field form.username|add_class:"mb-2 focus:outline-none border-b w-full pb-2 border-sky-400 placeholder-gray-500"  placeholder="Username" %}
+            {{form.username.help_text}}</br>
+            {{form.password1.label_tag}}
+            {% render_field form.password1|add_class:"mb-2 focus:outline-none border-b w-full pb-2 border-sky-400 placeholder-gray-500"  placeholder="Password" %}
+            {{form.password1.help_text}}
+            {{form.password2.label_tag}}
+            {% render_field form.password2|add_class:"mb-2 focus:outline-none border-b w-full pb-2 border-sky-400 placeholder-gray-500"  placeholder="Confirm Password" %}
+            {{form.password2.help_text}}</br>
+            {{form.email.label_tag}}
+            {% render_field form.email|add_class:"mb-2 focus:outline-none border-b w-full pb-2 border-sky-400 placeholder-gray-500" placeholder="Email" %}
+            {{form.gender.label_tag}}
+            {% render_field form.gender|add_class:"mb-2 focus:outline-none border-b w-full pb-2 border-sky-400 placeholder-gray-500" placeholder="Gender" %}
+            {{form.phone_no.label_tag}}
+            {% render_field form.phone_no|add_class:"mb-2 focus:outline-none border-b w-full pb-2 border-sky-400 placeholder-gray-500" placeholder="Phone no" %}
+            {{form.address.label_tag}}
+            {% render_field form.address|add_class:"mb-2 focus:outline-none border-b w-full pb-2 border-sky-400 placeholder-gray-500" placeholder="Address" %}
+            {{form.province.label_tag}}
+            {% render_field form.province|add_class:"mb-2 focus:outline-none border-b w-full pb-2 border-sky-400 placeholder-gray-500" placeholder="Province" %}
+            {{form.district.label_tag}}
+            {% render_field form.district|add_class:"mb-2 focus:outline-none border-b w-full pb-2 border-sky-400 placeholder-gray-500" placeholder="District" %}
+            {{form.city.label_tag}}
+            {% render_field form.city|add_class:"mb-2 focus:outline-none border-b w-full pb-2 border-sky-400 placeholder-gray-500" placeholder="City" %}
+             <div class="flex justify-center my-6">
+                <button type="submit" class=" rounded-full  p-3 w-full sm:w-56   bg-gradient-to-r from-sky-600  to-teal-300 text-white text-lg font-semibold " >
+                    Create Account
+                </button>
+            </div>
+        </form>
+        <p>Already have account? <a href="{% url 'login' %}">Sign In</a></p>
+    </div>
+</div>
+</body>
+</html>

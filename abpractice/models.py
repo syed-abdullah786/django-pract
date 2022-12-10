@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
+
 class CustomUser(AbstractUser):
     gender = [
         ('M', 'male'),
@@ -19,6 +20,8 @@ class Product(models.Model):
     price = models.IntegerField()
     in_stock = models.IntegerField()
     category = models.ForeignKey('Category', on_delete=models.RESTRICT, blank=True)
+    photo = models.ImageField(upload_to='cars')
+    specs = models.FileField(upload_to='specs')
 
     def __str__(self):
         return self.title
@@ -41,11 +44,26 @@ class Cart(models.Model):
 
 
 class Order(models.Model):
+    state = [
+        ('A', 'active'),
+        ('I', 'inactive'),
+        ('C', 'canceled')]
+    order_id = models.CharField(max_length=16)
     total_price = models.IntegerField()
-    user = models.OneToOneField(CustomUser, on_delete=models.RESTRICT)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.RESTRICT)
+    status = models.CharField(choices=state, default='A', max_length=30)
     shipping_address = models.CharField(max_length=100)
+    created = models.DateTimeField(auto_now_add=True)
 
+
+class Placed_Order(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.RESTRICT)
+    product_title = models.CharField(max_length=300)
+    product_photo = models.ImageField(upload_to='cars')
+    product_description = models.CharField(max_length=300)
+    product_price = models.IntegerField()
+    product_specs = models.FileField(upload_to='specs')
+    product_category = models.CharField(max_length=300)
 
 
 class Locations(models.Model):

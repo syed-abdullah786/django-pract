@@ -2,8 +2,7 @@
 
 {% block content %}
 
-
-<script defer src="https://unpkg.com/alpinejs@3.10.2/dist/cdn.min.js"></script>
+<div id="snackbar" class="fixed top-1.5 right-1.5 hidden w-[300px] mb-2 select-none border-l-4 border-red-400 bg-red-100 p-4 font-medium hover:border-red-500">Removed from cart</div>
 
 <section class="antialiased bg-gray-100 text-gray-600 h-screen px-4" x-data="app">
     <div class="flex flex-col justify-center h-full">
@@ -12,17 +11,17 @@
             <header class="px-5 py-4 border-b border-gray-100">
                 <div class="font-semibold text-gray-800">Manage Carts</div>
             </header>
-
+            <div id="changed">
             <div class="overflow-x-auto p-3">
+                {% if carts  %}
                 <table class="table-auto w-full" id="table">
                     <thead class="text-xs font-semibold uppercase text-gray-400 bg-gray-50">
                         <tr>
-                            <th></th>
                             <th class="p-2">
                                 <div class="font-semibold text-left">Product Name</div>
                             </th>
                             <th class="p-2">
-                                <div class="font-semibold text-left">Quantity</div>
+                                <div class="font-semibold text-left">Description</div>
                             </th>
                             <th class="p-2">
                                 <div class="font-semibold text-left">Price</div>
@@ -37,23 +36,22 @@
                         <!-- record 1 -->
                         {% for cart in carts %}
                         <tr>
-                            <td class="p-2">
-                                <input type="checkbox" class="w-5 h-5" value="{{cart.product.price }}"
-                                    onClick="toggleCheckbox($el, {{cart.product.price }})" />
-                            </td>
+<!--                            <td class="p-2">-->
+<!--                                <input type="checkbox" class="w-5 h-5" value="{{cart.product.price }}"-->
+<!--                                    onClick="toggleCheckbox($el, {{cart.product.price }})" />-->
+<!--                            </td>-->
                             <td class="p-2">
                                 <div class="font-medium text-gray-800">
                                     {{cart.product.title}}
                                 </div>
                             </td>
                             <td class="p-2">
-                                <div class="text-left">
-                                    <input id="quantity-{{cart.id}}" min="1" type="number" value="{{cart.quantity}}"
-                                    onchange="myFunction(this.value,{{cart.product.price}},{{cart.id}})" >
+                                <div class="text-left font-medium text-green-500">
+                                    {{cart.product.description }}
                                 </div>
                             </td>
                             <td class="p-2">
-                                <div class="text-left font-medium text-green-500" id="price-{{cart.id}}">
+                                <div class="text-left font-medium text-green-500">
                                     {{cart.product.price }}
                                 </div>
                             </td>
@@ -72,8 +70,8 @@
 <!--                                        </svg>-->
 <!--                                    </button>-->
 <!--                                    </form>-->
-                                    <button onclick="al({{cart.id}})" id="del">
-                                        <svg class="w-8 h-8 hover:text-blue-600 rounded-full hover:bg-gray-100 p-1"
+                                    <button onclick="al({{cart.id}},'{{cart.product.title}}')" id="del">
+                                        <svg class="w-8 h-8 hover:text-red-500 text-red-800 rounded-full hover:bg-gray-100 p-1"
                                             fill="none" stroke="currentColor" viewBox="0 0 24 24"
                                             xmlns="http://www.w3.org/2000/svg">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -84,18 +82,30 @@
                                 </div>
                             </td>
                         </tr>
-
                         {% endfor %}
 
                     </tbody>
                 </table>
+                {% else %}
+                <p>cart is empty</p>
+                {% endif %}
             </div>
 
             <!-- total amount -->
             <div class="flex justify-end font-bold space-x-4 text-2xl border-t border-gray-100 px-5 py-4">
                 <div>Total</div>
-                <div class="text-blue-600">Rs <span x-text="total.toFixed(2)"></span></div>
+<!--                <div class="text-blue-600">Rs <span x-text="total.toFixed(2)"></span></div>-->
+                <div class="text-blue-600 w-[200px]">Rs <span id="total">{{total}}</span></div>
+               {% if carts %}
+                <form method="post" action="{% url 'order'%}">
+                    {% csrf_token %}
+                    <label for="shipping_address">Shipping Address</label>
+                    <textarea type="text" id="shipping_address" name="shipping_address" required></textarea>
+                <button type="submit" class="bg-green-500 hover:bg-green-700 text-white py-1 px-2 border border-green-500 rounded">Submit</button>
+                </form>
+                    {% endif %}
             </div>
+        </div>
 
             <div class="flex justify-end">
                 <!-- send this data to backend (note: use class 'hidden' to hide this input) -->
@@ -108,7 +118,7 @@
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
     <script type="text/javascript">
-    function al(id){
+    function al(id,name){
     $.ajax(
     {
         type:"GET",
@@ -116,55 +126,20 @@
         data:{
                  "cart_id": id
         },
-        success: function( data )
+        success: function( data)
         {
-             var successHtml = $($.parseHTML(data)).find("#table").html();
-             $("#table").html(successHtml);
+             var successHtml = $($.parseHTML(data.html)).find("#changed").html();
+             $("#changed").html(successHtml);
+             var successHtml = $($.parseHTML(data.html)).find("#cart_no").html();
+             $("#cart_no").html(successHtml);
+             var x = document.getElementById("snackbar");
+             x.innerHTML=name + ' removed from cart';
+             x.classList.remove("hidden");
+             setTimeout(function(){ x.classList.add("hidden"); }, 2000);
+              document.getElementById('total').innerHTML=data.total;
         }
      })
 }
-</script>
-
-
-
-<script>
-    document.addEventListener("alpine:init", () => {
-        Alpine.data("app", () => ({
-            total: 0,
-            selected: [],
-
-            toggleCheckbox(element, amount) {
-                if (element.checked) {
-                    this.selected.push(element.value);
-                    this.total += amount;
-                } else {
-                    const index = this.selected.indexOf(element.value);
-
-                    if (index > -1) this.selected.splice(index, 1);
-
-                    this.total -= amount;
-                }
-            },
-        }));
-    });
-
-
-
-
-
-
-
-<!--window.onload = function() {-->
-<!--        myFunction();-->
-<!--    }-->
-<!--}-->
-
-function myFunction(qty,price,id){
-a= qty * price;
-Id = 'price-' + id
-document.getElementById(Id).innerHTML=a;
-}
-
 </script>
 
 {% endblock %}
