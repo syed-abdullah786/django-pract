@@ -10,6 +10,13 @@ from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.template.loader import render_to_string, get_template
+from rest_framework import status, generics
+from rest_framework.decorators import api_view
+from rest_framework.generics import ListCreateAPIView
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
+
 from .models import Product, Category, Cart, Order, Placed_Order, CustomUser
 from .forms import UserForm, ProductForm, CategoryForm, CartForm
 from django.views import View
@@ -18,10 +25,56 @@ from django.contrib.auth import login, logout
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 
+from .serealisers import ProductSerializer
 from .tokens import account_activation_token
 from django.contrib.auth.models import User
 from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
+
+
+class ProductViewSet(ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+
+
+class Prod(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+
+# class Prod(APIView):
+#     def get(self,request,id):
+#         obj = get_object_or_404(Product, id=id)
+#         serializer = ProductSerializer(obj)
+#         return Response(serializer.data)
+#
+#     def put(self,request,id):
+#         obj = get_object_or_404(Product, id=id)
+#         serializer = ProductSerializer(obj, data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#         serializer.save()
+#         return Response(serializer.data, status=status.HTTP_201_CREATED)
+#
+#     def delete(self, request, id):
+#         obj = get_object_or_404(Product, id=id)
+#         obj.delete()
+#         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class ProductAll(generics.ListCreateAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+
+
+# class ProductAll(APIView):
+#     def get(self, request):
+#         obj = Product.objects.select_related('category').all()
+#         serializer = ProductSerializer(obj, many=True)
+#         return Response(serializer.data)
+#
+#     def post(self, request):
+#         serializer = ProductSerializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#         serializer.save()
+#         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 def email(request):
@@ -40,6 +93,7 @@ def restricted_check(user):
     else:
         return False
 
+
 def logout_user(request):
     if request.method == 'POST':
         logout(request)
@@ -51,17 +105,18 @@ def login_user(request):
         form = AuthenticationForm(data=request.POST)
         if form.is_valid():
             user = form.get_user()
-            login(request,user)
+            login(request, user)
             return redirect('index')
         else:
             print(form.errors)
     form = AuthenticationForm()
+    # return JsonResponse({'some_key': 'some_value'})
     return render(request, 'abpractice/login.html', {'form': form})
 
 
 class FormCheck(View):
 
-    def get(self, request,hell):
+    def get(self, request, hell):
         form = UserForm
         meetings = [
             {'title': 'with Qasim', 'location': 'at Gujrat'},
@@ -93,18 +148,17 @@ def index(request):
                 message = request.POST['title'] + ' Already added'
                 return JsonResponse({'res': message})
             else:
-                queryset = Cart(product_id=request.POST['product_id'], user_id=request.POST['user_id'], quantity=request.POST['quantity'])
+                queryset = Cart(product_id=request.POST['product_id'], user_id=request.POST['user_id'],
+                                quantity=request.POST['quantity'])
                 queryset.save()
             # data = serializers.serialize('json', queryset)
             message = request.POST['title'] + ' Added to cart'
             html = render_to_string('abpractice/index.html', {'request': request})
-            return JsonResponse({'res': message,'html':html})
+            return JsonResponse({'res': message, 'html': html})
         else:
             message = 'Error'
             return JsonResponse({'res': message})
     return render(request, 'abpractice/index.html', {'product': product, 'category': category})
-
-
 
 # def index(request):
 #     if request.method == 'POST':
@@ -130,10 +184,9 @@ def index(request):
 def add_product(request):
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES)
-        print(form)
+
         if form.is_valid():
             form.save()
-            print('valid running')
         form = CategoryForm(request.POST)
         if form.is_valid():
             form.save()
@@ -142,12 +195,11 @@ def add_product(request):
             # for entry in all_entries:
             #     mydict[entry['id']] = entry['category_name']
             form = ProductForm
-            html = render_to_string('abpractice/add_product.html', {'pro_form': form,'request': request})
+            html = render_to_string('abpractice/add_product.html', {'pro_form': form, 'request': request})
             return JsonResponse({'html': html})
-        print('valid not running')
         form = ProductForm
         cat_form = CategoryForm
-        return render(request, 'abpractice/add_product.html', {'pro_form': form,'cat_form':cat_form})
+        return render(request, 'abpractice/add_product.html', {'pro_form': form, 'cat_form': cat_form})
     if request.method == 'GET':
         form = ProductForm
         cat_form = CategoryForm
@@ -164,7 +216,8 @@ def edit_product(request):
             form = ProductForm
             product = Product.objects.all()
             category = Category.objects.all()
-            html = render_to_string('abpractice/edit_product.html', { 'product': product,'category': category,'request': request})
+            html = render_to_string('abpractice/edit_product.html',
+                                    {'product': product, 'category': category, 'request': request})
             return JsonResponse({'html': html})
     product = Product.objects.all()
     category = Category.objects.all()
@@ -187,7 +240,7 @@ def update(request, id):
         try:
             if request.FILES['photo'] != 'Null':
                 os.remove(obj.photo.path)
-                obj.photo = request.FILES['photo']
+
         except:
             pass
         try:
@@ -218,13 +271,13 @@ def cart(request):
         a = 0;
         for cat in cart:
             a += cat.product.price
-        html = render_to_string('abpractice/cart.html', {'carts': cart,'request': request})
+        html = render_to_string('abpractice/cart.html', {'carts': cart, 'request': request})
         return JsonResponse({'html': html, 'total': a})
     cart = Cart.objects.filter(Q(user_id=request.user.id))
     a = 0;
     for cat in cart:
         a += cat.product.price
-    return render(request, 'abpractice/cart.html',{'carts': cart,'total':a})
+    return render(request, 'abpractice/cart.html', {'carts': cart, 'total': a})
 
 
 def order(request):
@@ -240,29 +293,31 @@ def order(request):
                 return redirect('cart')
         ref_code = unique_id()
         obj = Order(order_id=ref_code, total_price=a, user_id=request.user.id,
-                        shipping_address=request.POST['shipping_address'])
+                    shipping_address=request.POST['shipping_address'])
         obj.save()
         for cart in carts:
             product_obj = Product.objects.get(id=cart.product.id)
             product_obj.in_stock -= 1
             product_obj.save()
-            Placed_obj = Placed_Order(product_title=cart.product.title,product_photo =cart.product.photo,  product_description=cart.product.description,
-                               product_price=cart.product.price, product_category=cart.product.category.category_name,
-                               order_id=obj.id,product_specs =cart.product.specs)
+            Placed_obj = Placed_Order(product_title=cart.product.title, product_photo=cart.product.photo,
+                                      product_description=cart.product.description,
+                                      product_price=cart.product.price,
+                                      product_category=cart.product.category.category_name,
+                                      order_id=obj.id, product_specs=cart.product.specs)
             Placed_obj.save()
             cart.delete()
 
         order = Order.objects.get(id=obj.id)
         products = Placed_Order.objects.filter(Q(order_id=obj.id))
         html_message = render_to_string(
-            'abpractice/email_template.html',{'order': order, 'products': products, 'user': request.user})
+            'abpractice/email_template.html', {'order': order, 'products': products, 'user': request.user})
         print(html_message)
         send_mail(
             'order',
             'saad bhai kya order krna a????',
             'test22123590@gmail.com',
             [request.user.email],
-             html_message = html_message,
+            html_message=html_message,
             fail_silently=False,
         )
         orders = Order.objects.filter(user_id=request.user.id)
@@ -270,11 +325,12 @@ def order(request):
 
     if is_ajax(request) and request.method == "GET":
         products = Placed_Order.objects.filter(order_id=request.GET['order_id'])
-        html = render_to_string('abpractice/order.html', {'products': products,'request': request})
+        html = render_to_string('abpractice/order.html', {'products': products, 'request': request})
         return JsonResponse({'html': html})
 
     orders = Order.objects.filter(user_id=request.user.id)
     return render(request, 'abpractice/order.html', {'orders': orders})
+
 
 def unique_id():
     res = ''.join(random.choices(string.ascii_uppercase +
@@ -283,6 +339,7 @@ def unique_id():
     if orders:
         unique_id()
     return res
+
 
 def register(request):
     if request.method == 'POST':
@@ -299,9 +356,9 @@ def register(request):
                 'uid': urlsafe_base64_encode(force_bytes(user.pk)),
                 'token': account_activation_token.make_token(user),
             })
-            user.email_user(subject, message, from_email = 'test22123590@gmail.com')
+            user.email_user(subject, message, from_email='test22123590@gmail.com')
 
-            messages.success(request, ('Please Confirm your email to complete registration.'))
+            messages.success(request, 'Please Confirm your email to complete registration.')
             return redirect('email')
             ######################### mail system ####################################
             # htmly = get_template('abpractice/email.html')
@@ -316,16 +373,15 @@ def register(request):
             # return redirect('login')
     else:
         form = UserForm()
-    return render(request, 'abpractice/register.html', {'form': form, 'title':'register here'})
+    return render(request, 'abpractice/register.html', {'form': form, 'title': 'register here'})
 
 
 # def ajax_del(request):
-    # if request.method == "GET":
-    #     print(request.GET)
-    #     obj = get_object_or_404(Cart, id=request.POST['cart_id'])
-    #     print(obj)
-        # obj.delete()
-
+# if request.method == "GET":
+#     print(request.GET)
+#     obj = get_object_or_404(Cart, id=request.POST['cart_id'])
+#     print(obj)
+# obj.delete()
 
 
 class ActivateAccount(View):
@@ -342,11 +398,13 @@ class ActivateAccount(View):
             # user.profile.email_confirmed = True
             user.save()
             login(request, user)
-            messages.success(request, ('Your account have been confirmed.'))
+            messages.success(request, 'Your account have been confirmed.')
             return redirect('verified')
         else:
-                messages.warning(request, ('The confirmation link was invalid, possibly because it has already been used.'))
-                return redirect('login')
+            messages.warning(request, ('The confirmation link was invalid, possibly because it has already been'
+                                       ' used.'))
+            return redirect('login')
+
 
 def verified(request):
-    return render(request,'abpractice/verified_account.html')
+    return render(request, 'abpractice/verified_account.html')

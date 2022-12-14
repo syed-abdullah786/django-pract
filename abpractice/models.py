@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
+from .validator import validate_image, validate_file
+
 
 class CustomUser(AbstractUser):
     gender = [
@@ -19,9 +21,9 @@ class Product(models.Model):
     description = models.CharField(max_length=300)
     price = models.IntegerField()
     in_stock = models.IntegerField()
-    category = models.ForeignKey('Category', on_delete=models.RESTRICT, blank=True)
-    photo = models.ImageField(upload_to='cars')
-    specs = models.FileField(upload_to='specs')
+    category = models.ForeignKey('Category', on_delete=models.RESTRICT, blank=True, null=True)
+    photo = models.ImageField(upload_to='cars',validators=[validate_image],null=True)
+    specs = models.FileField(upload_to='specs',validators=[validate_file],null=True)
 
     def __str__(self):
         return self.title
