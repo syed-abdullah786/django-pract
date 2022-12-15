@@ -5,37 +5,48 @@ from django.utils.encoding import force_bytes
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.http import urlsafe_base64_encode
 from django.contrib import messages
-from django.core.mail import send_mail, EmailMultiAlternatives
+from django.core.mail import send_mail
 from django.db.models import Q
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
-from django.template.loader import render_to_string, get_template
-from rest_framework import status, generics
-from rest_framework.decorators import api_view
-from rest_framework.generics import ListCreateAPIView
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet
-
-from .models import Product, Category, Cart, Order, Placed_Order, CustomUser
-from .forms import UserForm, ProductForm, CategoryForm, CartForm
+from django.template.loader import render_to_string
+from django_filters.rest_framework import DjangoFilterBackend
 from django.views import View
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, logout
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
-
-from .serealisers import ProductSerializer
-from .tokens import account_activation_token
-from django.contrib.auth.models import User
 from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
+from rest_framework import generics
+from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.viewsets import ModelViewSet
+from .filters import ProductFilter
+from .models import Product, Category, Cart, Order, Placed_Order, CustomUser
+from .forms import UserForm, ProductForm, CategoryForm
+from .serealisers import ProductSerializer
+from .tokens import account_activation_token
+
 
 
 class ProductViewSet(ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_class = ProductFilter
+    search_fields = ['title', 'description']
+    ordering_fields = ['price']
+    pagination_class = PageNumberPagination
+    # filterset_fields = ['category']
 
+    # own custom filter
+    # def get_queryset(self):
+    #     queryset = Product.objects.all()
+    #     hell = self.request.query_params.get('category_id')
+    #     if hell is not None:
+    #         queryset = queryset.filter(category=hell)
+    #     return queryset
 
 class Prod(generics.RetrieveUpdateDestroyAPIView):
     queryset = Product.objects.all()

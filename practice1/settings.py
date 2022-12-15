@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_filters',
     'rest_framework',
     'debug_toolbar',
     'abpractice',
@@ -150,3 +151,7 @@ EMAIL_HOST_PASSWORD = 'nxlczatjsplakqfm'
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
+
+REST_FRAMEWORK = {
+    'PAGE_SIZE': 10
+}
